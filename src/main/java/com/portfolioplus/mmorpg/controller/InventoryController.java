@@ -34,7 +34,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryItems);
     }
 
-    // Add a new item by characterId
+    // Create a new item by characterId
     @PostMapping
     public ResponseEntity<InventoryDTO> createItemByCharacterId(@PathVariable Long characterId, @RequestBody InventoryDTO inventoryDTO) {
         System.out.println("POST /characters/" + characterId + "/inventory hit");

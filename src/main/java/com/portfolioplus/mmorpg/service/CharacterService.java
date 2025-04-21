@@ -31,12 +31,11 @@ public class CharacterService {
         this.authContextService = authContextService;
     }
 
-    // List all characters of a player
+    // Lists all characters for a player
     public List<CharacterDTO> getCharactersByPlayer(Long playerId) {
         playerRepository.findById(playerId).orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Player not found: " + playerId
+            HttpStatus.NOT_FOUND, "Player not found, playerId: " + playerId
         ));
-
         List<Character> characters = characterRepository.findByPlayerId(playerId);
         List<CharacterDTO> characterDTOs = new ArrayList<>();
         for (Character character : characters) {
@@ -45,40 +44,39 @@ public class CharacterService {
         return characterDTOs;
     }
 
-    // Get a character by id
+    // Gets a specific character by its ID and validate ownership
     public CharacterDTO getCharacterById(Long playerId, Long characterId) {
         Character existingCharacter = characterRepository.findById(characterId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Character not found: " + characterId
+                HttpStatus.NOT_FOUND, "Character not found, characterId: " + characterId
         ));
         validateCharacterOwnership(playerId, existingCharacter);
         return toDTO(existingCharacter);
     }
 
-    // Create a new character for a player
+    // Creates a new character for a player
     public CharacterDTO createCharacter(Long playerId, CharacterDTO characterDTO) {
         Player player = playerRepository.findById(playerId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Player not found: " + playerId
+                HttpStatus.NOT_FOUND, "Player not found, playerId: " + playerId
         ));
 
         if (isNullOrEmpty(characterDTO.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Character Name cannot be null or empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Character name cannot be null or empty");
         }
         if (characterDTO.getLevel() < 0 || characterDTO.getLevel() > 10) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Level has to be between 0 - 10");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Level should be between 0 - 10");
         }
         Character character = fromDTO(characterDTO, player);
         Character savedCharacter = characterRepository.save(character);
         return toDTO(savedCharacter);
     }
 
-    // Patch Update character
+    // Updates a character's details by its ID, allowing partial updates
     public CharacterDTO updateCharacterById(Long playerId, Long characterId, CharacterDTO characterDTO, HttpServletRequest request) {
         authContextService.requireMatchOrAdmin(request, playerId);
 
         Character existingCharacter = characterRepository.findById(characterId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Character not found: " + characterId
+                HttpStatus.NOT_FOUND, "Character not found, characterId: " + characterId
         ));
-
         validateCharacterOwnership(playerId, existingCharacter);
 
         // Update only the fields that are not null in the DTO
@@ -88,7 +86,7 @@ public class CharacterService {
         if (characterDTO.getLevel() != null && characterDTO.getLevel() >= 0 && characterDTO.getLevel() <= 10) {
             existingCharacter.setLevel(characterDTO.getLevel());
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Level has to be between 0 - 10");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Level should be between 0 - 10");
         }
         if (characterDTO.getCharacterClass() != null) {
             existingCharacter.setCharacterClass(characterDTO.getCharacterClass());
@@ -98,20 +96,20 @@ public class CharacterService {
         return toDTO(updatedCharacter);
     }
 
-    // Delete a character
+    // Delete a character by its ID after validating ownership and permissions
     public void deleteCharacterById(Long playerId, Long characterId, HttpServletRequest request) {
         authContextService.requireMatchOrAdmin(request, playerId);
 
         Character existingCharacter = characterRepository.findById(characterId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Character not found: " + characterId
+                HttpStatus.NOT_FOUND, "Character not found, characterId: " + characterId
         ));
         validateCharacterOwnership(playerId, existingCharacter);
 
         characterRepository.delete(existingCharacter);
-        System.out.println("Character deleted: " + characterId);
+        System.out.println("Character deleted, characterId: " + characterId);
     }
 
-    // Helper method to check if the character actually belongs to playerId
+    // Helper method to check if the character belongs to playerId
     private void validateCharacterOwnership(Long playerId, Character character) {
         if (!character.getPlayer().getId().equals(playerId)) {
             throw new ResponseStatusException(

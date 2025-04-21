@@ -3,6 +3,7 @@ package com.portfolioplus.mmorpg.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum CharacterClass {
+    // Types of Characters in the game
     NOOB, BARBARIAN, WIZARD, ARCHER, HEALER;
 
     @JsonCreator

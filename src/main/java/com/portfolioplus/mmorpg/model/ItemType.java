@@ -3,6 +3,7 @@ package com.portfolioplus.mmorpg.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum ItemType {
+    // Types of items that each character can have
     SWORD, GUN, POTION, ARMOUR;
 
     @JsonCreator

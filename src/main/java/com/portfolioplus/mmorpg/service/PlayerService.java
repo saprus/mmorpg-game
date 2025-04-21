@@ -32,6 +32,7 @@ public class PlayerService {
         this.authContextService = authContextService;
     }
 
+    // Gets a list of all players and converts them to DTOs
     public List<PlayerDTO> getAllPlayers() {
         List<Player> players = playerRepository.findAll();
         List<PlayerDTO> playerDTOs = new ArrayList<>();
@@ -40,14 +41,16 @@ public class PlayerService {
         }
         return playerDTOs;
     }
-
+    
+    // Gets a player by their ID and converts it to a DTO
     public PlayerDTO getPlayerById(Long playerId) {
         Player player = playerRepository.findById(playerId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Player not found: " + playerId
+                HttpStatus.NOT_FOUND, "Player not found, playerId: " + playerId
         ));
         return toDTO(player);
     }
 
+    // Creates a new player from a DTO and saves it to the repository
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
         if (isNullOrEmpty(playerDTO.getUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty");
@@ -64,12 +67,12 @@ public class PlayerService {
 
     }
 
-    // This is only PATCH mapping
+    // Updates an existing player's details by their ID using a DTO (PATCH mapping)
     public PlayerDTO updatePlayerById(Long playerId, PlayerDTO playerDTO, HttpServletRequest request) {
         authContextService.requireMatchOrAdmin(request, playerId);
 
         Player existingPlayer = playerRepository.findById(playerId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Player not found: " + playerId
+                HttpStatus.NOT_FOUND, "Player not found, playerId: " + playerId
         ));
 
         // Update only the fields that are not null in the DTO
@@ -90,19 +93,20 @@ public class PlayerService {
         return toDTO(updatedCharacter);
     }
 
+    // Deletes a player by their ID after ensuring they have no associated characters
     public void deletePlayerById(Long playerId, HttpServletRequest request) {
         //authContextService.requireMatchOrAdmin(request, playerId);
         authContextService.requireAdmin(request);
 
         Player existingPlayer = playerRepository.findById(playerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found: " + playerId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found, playerId: " + playerId));
 
         List<Character> characters = characterRepository.findByPlayerId(playerId);
         if (!characters.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete player with existing characters. Delete characters first.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete Player when its Characters exist; delete Characters first");
         }
         playerRepository.delete(existingPlayer);
-        System.out.println("Player deleted: " + playerId);
+        System.out.println("Player deleted, playerId: " + playerId);
     }
 }
 

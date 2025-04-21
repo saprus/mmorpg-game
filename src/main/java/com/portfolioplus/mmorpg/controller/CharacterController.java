@@ -31,8 +31,6 @@ public class CharacterController {
     // Get a character by id
     @GetMapping("/{characterId}")
     public ResponseEntity<CharacterDTO> getCharacterById(@PathVariable Long playerId, @PathVariable Long characterId) {
-        // Passing playerId in @PathVariable only for URL Consistency
-
         CharacterDTO characterDTO = characterService.getCharacterById(playerId, characterId);
         return ResponseEntity.ok(characterDTO);
     }
@@ -44,7 +42,7 @@ public class CharacterController {
         return ResponseEntity.status(201).body(createdCharacter);
     }
 
-    // Update character
+    // Update character info
     @PatchMapping("/{characterId}")
     public ResponseEntity<CharacterDTO> updateCharacterById(@PathVariable Long playerId, @PathVariable Long characterId, @RequestBody CharacterDTO characterDTO, HttpServletRequest request) {
         CharacterDTO updatedCharacter = characterService.updateCharacterById(playerId, characterId, characterDTO, request);

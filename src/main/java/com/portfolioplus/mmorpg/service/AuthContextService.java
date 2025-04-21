@@ -21,6 +21,7 @@ public class AuthContextService {
         this.playerRepository = playerRepository;
     }
 
+    // Gets the current player from the request header
     public Player getCurrentPlayerFromHeader(HttpServletRequest request) {
         // Verify the header
         String playerIdHeader = request.getHeader("X-Player-Id");
@@ -31,15 +32,15 @@ public class AuthContextService {
         try {
             Long playerId = Long.parseLong(playerIdHeader);
             return playerRepository.findById(playerId).orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Invalid X-Player-Id: Doesn't exist"
+                    HttpStatus.UNAUTHORIZED, "Invalid X-Player-Id header: PlayerID doesn't exist"
             ));
 
         } catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "X-Player-Id must be a number");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "X-Player-Id header must be a number");
         }
     }
 
-    // To check if current user is ADMIN
+    // Ensures the current user is an ADMIN
     public void requireAdmin(HttpServletRequest request) {
         Player currentPlayer = getCurrentPlayerFromHeader(request);
         if(currentPlayer.getRole() != Role.ADMIN) {
@@ -47,8 +48,7 @@ public class AuthContextService {
         }
     }
 
-    // Since the URL has playerId as Path Variable
-    // To make sure someone else cannot modify/delete others resources, this method is in place
+    // Ensures the current user matches the URL playerId or is an ADMIN
     public void requireMatchOrAdmin(HttpServletRequest request, Long urlPlayerId) {
         Player currentPlayer = getCurrentPlayerFromHeader(request);
 

@@ -32,18 +32,20 @@ public class InventoryService {
         this.authContextService = authContextService;
     }
 
+    // Gets an inventory item by its ID and validate ownership
     public InventoryDTO getItemById(Long characterId, Long inventoryId) {
         Inventory item = inventoryRepository.findById(inventoryId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Invalid inventoryId: " + inventoryId
+                HttpStatus.NOT_FOUND, "Inventory item not found, inventoryId: " + inventoryId
         ));
         validateInventoryOwnership(characterId, item);
         return toDTO(item);
     }
 
+    // Gets all inventory items for a specific character
     public List<InventoryDTO> getAllItemsByCharacterId(Long characterId) {
         // Checking whether characterId exists
         characterRepository.findById(characterId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Invalid characterId: " + characterId
+                HttpStatus.NOT_FOUND, "Character not found, characterId: " + characterId
         ));
         List<Inventory> itemList = inventoryRepository.findByCharacterId(characterId);
         List<InventoryDTO> itemListDTO = new ArrayList<>();
@@ -53,10 +55,11 @@ public class InventoryService {
         return itemListDTO;
     }
 
+    // Creates a new inventory item for a specific character
     public InventoryDTO createItemByCharacterId(Long characterId, InventoryDTO inventoryDTO) {
-        // Checking whether characterId exists
+        // Checking whether characterId even exists
         Character character = characterRepository.findById(characterId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Invalid characterId: " + characterId
+                HttpStatus.NOT_FOUND, "Character not found, characterId: " + characterId
         ));
         if (isNullOrEmpty(inventoryDTO.getItemName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ItemName cannot be empty");
@@ -65,9 +68,10 @@ public class InventoryService {
         return toDTO(savedItem);
     }
 
+    // Deletes an inventory item by its ID after validating ownership and permissions
     public void deleteItemById(Long characterId, Long inventoryId, HttpServletRequest request) {
         Inventory item = inventoryRepository.findById(inventoryId).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Item not found, inventoryId: " + inventoryId
+                HttpStatus.NOT_FOUND, "Inventory item not found, inventoryId: " + inventoryId
         ));
         authContextService.requireMatchOrAdmin(request, item.getCharacter().getPlayer().getId());
 
@@ -75,11 +79,11 @@ public class InventoryService {
         inventoryRepository.delete(item);
     }
 
-    // Helper method to check if the Inventory item actually belongs to characterId
+    // Helper method to check if the Inventory item belongs to characterId
     private void validateInventoryOwnership(Long characterId, Inventory item) {
         if (!item.getCharacter().getId().equals(characterId)) {
             throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "Inventory does not belong to the specified character: " + characterId
+                    HttpStatus.FORBIDDEN, "Inventory does not belong to the specified character, characterId: " + characterId
             );
         }
     }

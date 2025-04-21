@@ -21,30 +21,35 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
+    // Get all the players
     @GetMapping
     public ResponseEntity<List<PlayerDTO>> getAllPlayers() {
         List<PlayerDTO> players = playerService.getAllPlayers();
         return ResponseEntity.ok(players);
     }
 
+    // Get a player by id
     @GetMapping("/{playerId}")
     public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable Long playerId) {
         PlayerDTO playerDTO = playerService.getPlayerById(playerId);
         return ResponseEntity.ok(playerDTO);
     }
 
+    // Create a player
     @PostMapping
     public ResponseEntity<PlayerDTO> createPlayer(@RequestBody PlayerDTO playerDTO) {
         PlayerDTO createdPlayer = playerService.createPlayer(playerDTO);
         return ResponseEntity.status(201).body(createdPlayer);
     }
 
+    // Update a player info
     @PatchMapping("/{playerId}")
     public ResponseEntity<PlayerDTO> updatePlayerById(@PathVariable Long playerId, @RequestBody PlayerDTO playerDTO, HttpServletRequest request) {
         PlayerDTO updatedPlayer = playerService.updatePlayerById(playerId, playerDTO, request);
         return ResponseEntity.ok(updatedPlayer);
     }
 
+    // Delete a player
     @DeleteMapping("/{playerId}")
     public ResponseEntity<Void> deletePlayerById(@PathVariable Long playerId, HttpServletRequest request) {
         playerService.deletePlayerById(playerId, request);

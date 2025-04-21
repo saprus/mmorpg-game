@@ -3,6 +3,7 @@ package com.portfolioplus.mmorpg.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum Role {
+    // Types of roles you can have in the game
     PLAYER, ADMIN;
 
     @JsonCreator
