@@ -87,4 +87,3 @@ In addition to the core requirements, this submission includes the following opt
 ## 📝  Notes
 
 - Automated tests were deprioritized in favor of complete end-to-end architecture and deployment
-- Test scaffolding (JUnit, MockMvc, Mockito) is ready and can be expanded if desired
