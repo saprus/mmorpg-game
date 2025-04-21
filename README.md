@@ -1,4 +1,4 @@
-# 🧙‍♂️ MMORPG API Catalog
+# 🧙‍♂️ MMORPG Catalog - Character Profile System
 
 This is a Spring Boot REST API for managing players, characters, and inventory items in a fictional MMORPG-style game.
 
